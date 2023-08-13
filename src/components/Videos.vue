@@ -30,7 +30,7 @@
                 ref="videoPlayer" :src="base_url + 'get_video/' + videoId"></video>
             <span v-if="videoId != null" @click="videoId = null" style="user-select: none;cursor: pointer; z-index: 100;"
                 class="absolute top-[5px] right-[20px] text-3xl font-bold text-white">&times;</span>
-            <p v-if="currentSubtitle" class="absolute bottom-[100px] bg-[black] text-white p-[8px]">{{ currentSubtitle }}
+            <p v-if="currentSubtitle && videoId != null"  class="absolute bottom-[100px] bg-[black] text-white p-[8px]">{{ currentSubtitle }}
             </p>
         </div>
     </div>
