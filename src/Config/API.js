@@ -1,12 +1,12 @@
 import {BASE_URL} from "./BASE_URL";
-
-export function getVideoData(axios) {
+import axios from "axios"
+export function getVideoData() {
   return axios.get(`${BASE_URL}get_all_videos`);
 }
-export function uploadFile(axios,data) {
+export function uploadFile(data) {
   return axios.post(`${BASE_URL}uploadFile`,data);
 }
-export function getVideoWithSubtitle(axios,id) {
+export function getVideoWithSubtitle(id) {
   return axios.get(`${BASE_URL}get_video_with_subtitle/${id}`);
 }
 

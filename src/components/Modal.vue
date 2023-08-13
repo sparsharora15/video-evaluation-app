@@ -44,12 +44,13 @@
                         class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                         id="file_input" type="file" />
                     <p v-if="payload.isSubtitleFileError" class="text-[red]">
-                        Unsupported file type (supported format is file.json) 
+                        Unsupported file type (supported format is file.json)
                     </p>
 
                 </div>
                 <div class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
-                    <button data-modal-hide="defaultModal" type="button" @click="upload" v-bind:disabled="payload.isSubtitleFileError || payload.isVideoFileError"
+                    <button data-modal-hide="defaultModal" type="button" @click="upload"
+                        v-bind:disabled="payload.isSubtitleFileError || payload.isVideoFileError"
                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                         Upload
                     </button>
@@ -67,6 +68,9 @@ import { BASE_URL } from '@/Config/BASE_URL'
 import { uploadFile } from '@/Config/API'
 export default {
     name: "Modal-m",
+    props: {
+        videos: []
+    },
     data() {
         return {
             payload: {
@@ -76,29 +80,45 @@ export default {
                 isVideoFileError: false,
             },
             base_url: BASE_URL,
+            videosData: this.videos,
         }
+    },
+    updated() {
+        console.log(this.videosData)
     },
     methods: {
         upload() {
             const formData = new FormData()
             formData.append('video', this.payload.video)
             formData.append('subtitles', this.payload.subtitles)
-            uploadFile(this.axios, formData).then((res) => {
-                if (res.data.status_code === 200) {
-                    alert(res.data.message)
-                    this.payload.video = null,
-                        this.payload.subtitles = null
-                    this.$refs.subtitle.value = null;
-                    this.$refs.video.value = null;
+          this.$emit("loading",true)
+            uploadFile(formData)
 
-                }
-            })
-                .catch((err) => {
-                    alert(err.response.data.message)
-                    this.payload.video = null,
+                .then((res) => {
+                    
+                    if (res.data.status_code === 200) {
+                        this.$emit("loading",false)
+                        this.$emit("refresh", "")
+                        alert(res.data.message)
+                        this.payload.video = null,
                         this.payload.subtitles = null
-                    this.$refs.subtitle.value = null;
-                    this.$refs.video.value = null;
+                        this.$refs.subtitle.value = null;
+                        this.$refs.video.value = null;
+
+                    }
+                })
+                .catch((err) => {
+                    if (err) {
+                        this.$emit("loading",true)
+                        alert(err.response.data.message)
+                        this.payload.video = null,
+                        this.payload.subtitles = null
+                        this.$refs.subtitle.value = null;
+                        this.$refs.video.value = null;
+                    }
+                    else {
+                        alert('something went wrong')
+                    }
                 })
         },
         changeVideo(e) {
