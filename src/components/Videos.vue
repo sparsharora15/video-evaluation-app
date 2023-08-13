@@ -1,10 +1,10 @@
 
 <template>
     <div class="flex flex-col justify-center items-center container my-8 mx-auto px-4 md:px-12 relative">
-        <Heading title="Video Gallery" />
+        <Heading title="Video Gallery" videos=videos />
 
         <div class="flex flex-wrap mx-1 h-[75vh] lg:-mx-4">
-            <div v-if="videos.length > 0">
+            <div v-if="videos.length > 0" class="flex md:flex-row flex-col">
                 <div v-for="(video, index) in videos" :key="index" @click="onclick(video)"
                     class="shadow-4xl my-1 px-1 md:w-1/2 relative lg:my-4 lg:px-4 lg:w-1/3">
                     <i class="fa-solid fa-play absolute top-[50%] right-[50%] fa-2xl "></i>
@@ -30,7 +30,8 @@
                 ref="videoPlayer" :src="base_url + 'get_video/' + videoId"></video>
             <span v-if="videoId != null" @click="videoId = null" style="user-select: none;cursor: pointer; z-index: 100;"
                 class="absolute top-[5px] right-[20px] text-3xl font-bold text-white">&times;</span>
-            <p v-if="currentSubtitle && videoId != null"  class="absolute bottom-[100px] bg-[black] text-white p-[8px]">{{ currentSubtitle }}
+            <p v-if="currentSubtitle && videoId != null" class="absolute bottom-[100px] bg-[black] text-white p-[8px]">
+                {{ currentSubtitle }}
             </p>
         </div>
     </div>
@@ -45,7 +46,7 @@ export default {
     name: 'Video-Cards',
     components: {
         Heading
-    },      
+    },
     data() {
         return {
             videos: [],

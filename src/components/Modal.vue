@@ -22,11 +22,11 @@
                     <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">
                         Upload video
                     </label>
-                    <input
-                        ref="video" class="block w-full text-sm mt-2 text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                    <input ref="video"
+                        class="block w-full text-sm mt-2 text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                         id="file_input" type="file" @change="changeVideo" />
                     <p v-if="payload.isVideoFileError" class="text-[red]">
-                        {{ "Unsuported file type (supported format is video.mp4) " }}
+                        Unsuported file type (supported format is video.mp4)
                     </p>
                     <label class="mt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">
                         Upload subtitles (in json format)
@@ -40,16 +40,16 @@
                         </a>
 
                     </label>
-                    <input @change="changeSubtitle"
-                      ref="subtitle"  class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                    <input @change="changeSubtitle" ref="subtitle"
+                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                         id="file_input" type="file" />
-                    <p v-if="subtitleError.length > 0" class="text-[red]">
-                        {{ subtitleError[0] + " (supported format is file.json) " }}
+                    <p v-if="payload.isSubtitleFileError" class="text-[red]">
+                        Unsupported file type (supported format is file.json) 
                     </p>
 
                 </div>
                 <div class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
-                    <button data-modal-hide="defaultModal" type="button" @click="upload" v-bind:disabled="isDisabled"
+                    <button data-modal-hide="defaultModal" type="button" @click="upload" v-bind:disabled="payload.isSubtitleFileError || payload.isVideoFileError"
                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                         Upload
                     </button>
@@ -75,10 +75,7 @@ export default {
                 isSubtitleFileError: false,
                 isVideoFileError: false,
             },
-            videoError: [],
-            subtitleError: [],
             base_url: BASE_URL,
-            isDisabled: true,
         }
     },
     methods: {
@@ -90,22 +87,26 @@ export default {
                 if (res.data.status_code === 200) {
                     alert(res.data.message)
                     this.payload.video = null,
-                    this.payload.subtitles = null
+                        this.payload.subtitles = null
                     this.$refs.subtitle.value = null;
                     this.$refs.video.value = null;
 
                 }
             })
-                .catch((err) => console.log(err))
+                .catch((err) => {
+                    alert(err.response.data.message)
+                    this.payload.video = null,
+                        this.payload.subtitles = null
+                    this.$refs.subtitle.value = null;
+                    this.$refs.video.value = null;
+                })
         },
         changeVideo(e) {
             this.videoError = []
             if (e.target.files[0]?.type !== "video/mp4") {
-                this.isDisabled = true
                 this.payload.isVideoFileError = true
                 return
             }
-            this.isDisabled = false
             this.payload.isVideoFileError = false
             this.payload.video = e.target.files[0]
         },
@@ -113,11 +114,9 @@ export default {
             this.subtitleError = []
             if (e.target.files[0]?.type !== "application/json") {
                 this.subtitleError.push("unsuported file type")
-                this.isDisabled = true
                 this.payload.isSubtitleFileError = true
                 return
             }
-            this.isDisabled = false
             this.payload.isSubtitleFileError = false
             return this.payload.subtitles = e.target.files[0]
         },
