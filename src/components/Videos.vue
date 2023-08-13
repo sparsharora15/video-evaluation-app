@@ -1,0 +1,112 @@
+
+<template>
+    <div class="flex flex-col justify-center items-center container my-8 mx-auto px-4 md:px-12 relative">
+        <Heading title="Video Gallery" />
+
+        <div class="flex flex-wrap mx-1 h-[75vh] lg:-mx-4">
+            <div v-if="videos.length > 0">
+                <div v-for="(video, index) in videos" :key="index" @click="onclick(video)"
+                    class="shadow-4xl my-1 px-1 md:w-1/2 relative lg:my-4 lg:px-4 lg:w-1/3">
+                    <i class="fa-solid fa-play absolute top-[50%] right-[50%] fa-2xl "></i>
+
+                    <div class=" overflow-hidden rounded-lg ">
+
+                        <a href="#">
+                            <video muted :src="base_url + 'get_video/' + video.video_id">
+
+                            </video>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div v-else class="container  mx-auto flex items-center justify-center w-full ">
+                <h1 class="text-white font-bold">No videos available....</h1>
+
+            </div>
+        </div>
+        <div v-if="videoId != null"
+            class=" justify-center flex items-center lg:w-[70%] w-full p-8  fixed z-[100] bg-[rgb(0,0,0,0.9)] top-[50px]   ">
+            <video id="video" v-if="videoId != null" @play="handlePlay" controls @timeupdate="updateCurrentTime"
+                ref="videoPlayer" :src="base_url + 'get_video/' + videoId"></video>
+            <span v-if="videoId != null" @click="videoId = null" style="user-select: none;cursor: pointer; z-index: 100;"
+                class="absolute top-[5px] right-[20px] text-3xl font-bold text-white">&times;</span>
+            <p v-if="currentSubtitle" class="absolute bottom-[100px] bg-[black] text-white p-[8px]">{{ currentSubtitle }}
+            </p>
+        </div>
+    </div>
+</template>
+<script>
+import { getVideoData, getVideoWithSubtitle } from '@/Config/API'
+import { BASE_URL } from '@/Config/BASE_URL'
+import Heading from './Heading.vue'
+import moment from "moment";
+
+export default {
+    name: 'Video-Cards',
+    components: {
+        Heading
+    },      
+    data() {
+        return {
+            videos: [],
+            isPlaying: false,
+            base_url: BASE_URL,
+            videoId: null,
+            subtitles: null,
+            currentTime: 0,
+            currentSubtitle: null
+        }
+    },
+    mounted() {
+        getVideoData(this.axios)
+            .then((resp) => {
+                this.videos = resp.data.data
+
+
+            })
+            .catch((err) => console.log(err))
+
+    },
+    methods: {
+        onclick(el) {
+            getVideoWithSubtitle(this.axios, el.video_id).then((resp) => {
+                if (resp.data.statusCode === 200) {
+                    this.subtitles = resp.data.data.subtitles.subtitles.subtitles,
+                        this.videoId = resp.data.data.video_id.$oid
+                }
+
+            })
+                .catch((err) => console.log(err))
+
+        }, handlePlay() {
+            this.isPlaying = true;
+        }, updateCurrentTime() {
+            var videoElement = document.getElementById('video');
+            console.log(videoElement.currentTime)
+            if (videoElement) {
+                const duration = moment.duration(videoElement.currentTime, 'seconds');
+
+                const hours = Math.floor(duration._milliseconds / 3600000);
+                duration._milliseconds %= 3600000;
+
+                const minutes = Math.floor(duration._milliseconds / 60000);
+                duration._milliseconds %= 60000;
+
+                const seconds = Math.floor(duration._milliseconds / 1000);
+
+                this.currentTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                const subtitle = this.subtitles.find(sub => this.currentTime >= sub.timeStampFrom && this.currentTime <= sub.timeStampTo);
+
+                if (subtitle) {
+                    this.currentSubtitle = subtitle.text;
+                } else {
+                    this.currentSubtitle = '';
+                }
+            }
+        },
+    }
+
+
+}
+</script>
