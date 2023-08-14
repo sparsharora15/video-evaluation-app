@@ -12,7 +12,7 @@
                     <div class=" overflow-hidden rounded-lg ">
 
                         <a href="#">
-                            <video muted :src="base_url + 'uploads/' + video.video">
+                            <video muted :src="video.video">
 
                             </video>
                         </a>
@@ -30,7 +30,7 @@
         <div v-if="videoName != null"
             class=" justify-center flex items-center lg:w-[70%] w-full p-8  fixed z-[100] bg-[rgb(0,0,0,0.9)] top-[50px]   ">
             <video id="video" v-if="videoName != null" @play="handlePlay" controls @timeupdate="updateCurrentTime"
-                ref="videoPlayer" :src="base_url + 'uploads/' + videoName"></video>
+                ref="videoPlayer" :src="videoName"></video>
             <span v-if="videoName != null" @click="videoName = null" style="user-select: none;cursor: pointer; z-index: 100;"
                 class="absolute top-[5px] right-[20px] text-3xl font-bold text-white">&times;</span>
             <p id="subtitle" v-if="currentSubtitle && videoName != null"
