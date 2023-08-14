@@ -95,8 +95,8 @@ export default {
             uploadFile(formData)
 
                 .then((res) => {
-                    
-                    if (res.data.status_code === 200) {
+                    console.log(res.data)
+                    if (res.data.statusCode === 200) {
                         this.$emit("loading",false)
                         this.$emit("refresh", "")
                         alert(res.data.message)
@@ -109,7 +109,7 @@ export default {
                 })
                 .catch((err) => {
                     if (err) {
-                        this.$emit("loading",true)
+                        this.$emit("loading",false)
                         alert(err.response.data.message)
                         this.payload.video = null,
                         this.payload.subtitles = null
