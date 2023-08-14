@@ -25,7 +25,7 @@
                     <input ref="video"
                         class="block w-full text-sm mt-2 text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                         id="file_input" type="file" @change="changeVideo" />
-                    <p v-if="payload.isVideoFileError" class="text-[red]">
+                    <p v-if="payload.isVideoFileError===true" class="text-[red]">
                         Unsuported file type (supported format is video.mp4)
                     </p>
                     <label class="mt-4 block mb-2 text-sm font-medium text-gray-900 dark:text-white" for="file_input">
@@ -43,7 +43,7 @@
                     <input @change="changeSubtitle" ref="subtitle"
                         class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                         id="file_input" type="file" />
-                    <p v-if="payload.isSubtitleFileError" class="text-[red]">
+                    <p v-if="payload.isSubtitleFileError===true" class="text-[red]">
                         Unsupported file type (supported format is file.json)
                     </p>
 
@@ -76,8 +76,8 @@ export default {
             payload: {
                 video: null,
                 subtitles: null,
-                isSubtitleFileError: false,
-                isVideoFileError: false,
+                isSubtitleFileError: true,
+                isVideoFileError: true,
             },
             base_url: BASE_URL,
             videosData: this.videos,
@@ -109,7 +109,7 @@ export default {
                 })
                 .catch((err) => {
                     if (err) {
-                        this.$emit("loading",true)
+                        this.$emit("loading",false)
                         alert(err.response.data.message)
                         this.payload.video = null,
                         this.payload.subtitles = null
@@ -133,7 +133,6 @@ export default {
         changeSubtitle(e) {
             this.subtitleError = []
             if (e.target.files[0]?.type !== "application/json") {
-                this.subtitleError.push("unsuported file type")
                 this.payload.isSubtitleFileError = true
                 return
             }

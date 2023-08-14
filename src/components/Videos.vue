@@ -73,6 +73,7 @@ export default {
     },
     mounted() {
         this.getVideos()
+        console.log(this.videos)
     },
     methods: {
 
