@@ -5,7 +5,7 @@
 
         <div v-if="!isLoading" class="flex flex-wrap mx-1  lg:-mx-4">
             <div v-if="videos.length > 0" class="xl:grid-cols-4 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid">
-                
+
                 <div v-for="(video, index) in videos" :key="index" @click="handleonclick(video)"
                     class="shadow-4xl my-1 px-1  relative lg:my-4 lg:px-4 ">
                     <i class="fa-solid fa-play absolute top-[50%] right-[50%] fa-2xl "></i>
@@ -39,6 +39,7 @@
                 class="flex items-center absolute bottom-[100px] bg-[black] cursor-pointer text-white p-[8px]">
                 <i @click="pauseVideo(currentSubtitle)" class="fa-solid fa-pen-to-square edit-button mr-2"></i>
                 {{ currentSubtitle.text }}
+                <Spinner v-if="isEditLoading" />
             </p>
             <input v-else-if="isEditing" type="text" v-model="currentSubtitle.text"
                 @change="handleChnageSubtitle(videoName)"
@@ -74,6 +75,7 @@ export default {
             currentTime: 0,
             currentSubtitle: {},
             isLoading: false,
+            isEditLoading: false,
             data: this.subtitles,
             isEditing: false,
             editedSubtitle: null
@@ -81,7 +83,6 @@ export default {
     },
     mounted() {
         this.getVideos()
-        console.log(this.videos)
         // console.log(this.currentSubtitle)
 
 
@@ -106,16 +107,19 @@ export default {
 
         },
         handleChnageSubtitle() {
-            // console.log()
             let video = document.getElementById('video')
-            video.play()
             this.isEditing = !this.isEditing
             console.log(this.videoData._id)
             console.log(this.subtitles)
-            // console.log(first)
             // const 
-            const finalData = { data: {subtitles:{subtitles:this.subtitles}}, videoId: this.videoData._id }
-            upldateSubtitles(finalData).then().catch((err) => console.log(err))
+            const finalData = { data: { subtitles: { subtitles: this.subtitles } }, videoId: this.videoData._id }
+            this.isEditLoading = true
+            upldateSubtitles(finalData).then(res => {
+                if (res.data.status_code === 200) {
+                    this.isEditLoading = false
+                    video.play()
+                }
+            }).catch(() => this.isEditLoading = false)
 
         },
         pauseVideo() {
@@ -154,13 +158,14 @@ export default {
 
                 const subtitle = this.subtitles.find(sub => this.currentTime >= sub.timeStampFrom && this.currentTime <= sub.timeStampTo);
 
+
                 if (subtitle) {
                     this.currentSubtitle = subtitle;
                 } else {
                     this.currentSubtitle = '';
                 }
             }
-        },
+        }
     }
 
 

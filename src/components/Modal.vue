@@ -83,9 +83,7 @@ export default {
             videosData: this.videos,
         }
     },
-    updated() {
-        console.log(this.videosData)
-    },
+
     methods: {
         upload() {
             const formData = new FormData()
