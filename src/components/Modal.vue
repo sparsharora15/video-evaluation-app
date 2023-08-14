@@ -96,7 +96,7 @@ export default {
 
                 .then((res) => {
                     
-                    if (res.data.status_code === 200) {
+                    if (res.data.statusCode === 200) {
                         this.$emit("loading",false)
                         this.$emit("refresh", "")
                         alert(res.data.message)

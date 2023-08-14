@@ -12,7 +12,7 @@
                     <div class=" overflow-hidden rounded-lg ">
 
                         <a href="#">
-                            <video muted :src="base_url + 'get_video/' + video.video_id">
+                            <video muted :src="base_url + 'uploads/' + video.video">
 
                             </video>
                         </a>
@@ -27,15 +27,18 @@
         <div v-else class="container h-[75vh]  mx-auto flex items-center justify-center w-full ">
             <Spinner />
         </div>
-        <div v-if="videoId != null"
+        <div v-if="videoName != null"
             class=" justify-center flex items-center lg:w-[70%] w-full p-8  fixed z-[100] bg-[rgb(0,0,0,0.9)] top-[50px]   ">
-            <video id="video" v-if="videoId != null" @play="handlePlay" controls @timeupdate="updateCurrentTime"
-                ref="videoPlayer" :src="base_url + 'get_video/' + videoId"></video>
-            <span v-if="videoId != null" @click="videoId = null" style="user-select: none;cursor: pointer; z-index: 100;"
+            <video id="video" v-if="videoName != null" @play="handlePlay" controls @timeupdate="updateCurrentTime"
+                ref="videoPlayer" :src="base_url + 'uploads/' + videoName"></video>
+            <span v-if="videoName != null" @click="videoName = null" style="user-select: none;cursor: pointer; z-index: 100;"
                 class="absolute top-[5px] right-[20px] text-3xl font-bold text-white">&times;</span>
-            <p v-if="currentSubtitle && videoId != null" class="absolute bottom-[100px] bg-[black] text-white p-[8px]">
+            <p id="subtitle" v-if="currentSubtitle && videoName != null"
+                class="absolute bottom-[100px] bg-[black] cursor-pointer text-white p-[8px]">
                 {{ currentSubtitle }}
             </p>
+            <!-- <i  class="ml-1 fa-solid fa-circle-info"></i> -->
+            
         </div>
         <Modal @refresh="getVideos" @loading="updateLoader($event)" />
 
@@ -60,7 +63,7 @@ export default {
             videos: [],
             isPlaying: false,
             base_url: BASE_URL,
-            videoId: null,
+            videoName: null,
             subtitles: null,
             currentTime: 0,
             currentSubtitle: null,
@@ -74,10 +77,12 @@ export default {
     methods: {
 
         handleonclick(el) {
-            getVideoWithSubtitle(el.video_id).then((resp) => {
+            // console.log(el._id.$oid)
+            getVideoWithSubtitle(el._id.$oid).then((resp) => {
                 if (resp.data.statusCode === 200) {
-                    this.subtitles = resp.data.data.subtitles.subtitles.subtitles,
-                        this.videoId = resp.data.data.video_id.$oid
+                    // console.log(resp.data.data.subtitles.subtitles.subtitles)
+                    this.subtitles =resp.data.data.subtitles.subtitles.subtitles,
+                        this.videoName = resp.data.data.video
                 }
 
             })
@@ -93,13 +98,13 @@ export default {
         getVideos() {
             getVideoData()
                 .then((resp) => {
-                    this.videos = resp.data.data
+                    // console.log(resp.data)
+                    this.videos = resp.data
                 })
                 .catch((err) => console.log(err))
         },
-        updateCurrentTime() {
+        updateCurrentTime() { 
             var videoElement = document.getElementById('video');
-            console.log(videoElement.currentTime)
             if (videoElement) {
                 const duration = moment.duration(videoElement.currentTime, 'seconds');
 
@@ -116,6 +121,7 @@ export default {
                 const subtitle = this.subtitles.find(sub => this.currentTime >= sub.timeStampFrom && this.currentTime <= sub.timeStampTo);
 
                 if (subtitle) {
+                    console.log(subtitle.text)
                     this.currentSubtitle = subtitle.text;
                 } else {
                     this.currentSubtitle = '';
