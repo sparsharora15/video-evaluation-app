@@ -10,7 +10,7 @@ export function getVideoWithSubtitle(id) {
   return axios.get(`${BASE_URL}get_video_with_subtitle/${id}`);
 }
 export function upldateSubtitles(data) {
-  return axios.put(`http://127.0.0.1:5000/upldateSubtitles`,data);
+  return axios.put(`${BASE_URL}upldateSubtitles`,data);
 }
 
 // module.export = getVideoData
